@@ -1,20 +1,57 @@
-syntax = "proto3";
+syntax = "proto3"; //versão que vamos utilizar
 
-option java_multiple_files = true;
-option java_package = "br.com.zup";
-option java_outer_classname = "Protobuf";
-option objc_class_prefix = "HLW";
+//Diretrizes
+option java_multiple_files = true; //Gerar arquivos separados
+option java_package = "br.com.zup"; //Pacote onde será gerado as classes
+option java_outer_classname = "FuncionarioServiceOuterClass"; //Classe que guardará todos os metadados quando o "java_multiple_files" for false
 
-package br.com.zup;
+package br.com.zup; //pacote onde as classes serão geradas
 
-service ProtobufService {
-  rpc send (ProtobufRequest) returns (ProtobufReply) {}
+import "google/protobuf/timestamp.proto"; //importação do timestamp da google
+
+service FuncionarioService {
+  rpc cadastrar (FuncionarioRequest) returns (FuncionarioResponse) {}
 }
 
-message ProtobufRequest {
-  string name = 1;
+enum Cargo {
+  NAO_INFORMADO = 0; //0 - default
+  DEV = 1;
+  QA = 2;
+  GERENTE = 3;
 }
 
-message ProtobufReply {
-  string message = 1;
+message FuncionarioRequest {
+  string nome = 1; //é preciso passar as posições aparti do 1 para o protobuf
+  string cpf = 2;
+  int32 idade = 3;
+  double salario = 4;
+  bool ativo = 5;
+  Cargo cargo = 6;
+
+  message Endereco { //como só vai ser usado no contexto do funcionario, pode deixar dentro da própria message
+    string logradouro = 1;
+    string cep = 2;
+    string complemento = 3;
+  }
+  repeated Endereco endereco = 7; //repeated: indica que é uma lista
 }
+
+message FuncionarioResponse {
+  string nome = 1;
+  google.protobuf.Timestamp criadoEm = 2;
+}
+/*
+
+-----EXECUTAR VIA LINHA DE COMANDO
+Para executar criar a pasta target: mkdir target
+Para rodar:
+protoc -I=src/main/proto --java_out=target src/main/proto/protobuf.proto
+
+protoc: execução
+-I=src/main/proto: origem do diretorio onde está o proto
+--java_out=target: saida da execução
+src/main/proto/protobuf.proto: arquivo a ser executado
+
+--------EXECUTAR VIA GRADLE
+Rodar o "gradle clean compileJava"
+ */
